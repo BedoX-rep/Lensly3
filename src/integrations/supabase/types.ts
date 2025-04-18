@@ -4,6 +4,7 @@ export interface Subscription {
   start_date: string;
   end_date: string;
   trial_used: boolean;
+  is_recurring: boolean;
   created_at: string;
 }
 

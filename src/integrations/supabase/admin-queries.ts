@@ -34,6 +34,7 @@ export async function adminCreateSubscription(userId: string, email: string, dis
       subscription_type: subscriptionType,
       trial_used: subscriptionType === 'Trial',
       subscription_status: 'Active',
+      is_recurring: subscriptionType !== 'Trial',
       created_at: startDate.toISOString()
     };
 
