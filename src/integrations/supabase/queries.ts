@@ -3,6 +3,11 @@
 import { supabaseAdmin } from './admin-client';
 
 export async function createTrialSubscription(userId: string, email: string, displayName: string) {
+  if (!userId || !email || !displayName) {
+    console.error('Missing required fields for subscription creation');
+    return null;
+  }
+  
   try {
     const startDate = new Date();
     const endDate = new Date();

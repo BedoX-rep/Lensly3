@@ -21,8 +21,13 @@ export async function signInWithEmail(email: string, password: string) {
           .single();
 
         if (subError?.code === 'PGRST116' || !subscription) {
-          // No subscription found, create trial
-          await createTrialSubscription(data.user.id, data.user.email || '', '');
+          // No subscription found, create trial with user metadata
+          const metadata = data.user.user_metadata || {};
+          await createTrialSubscription(
+            data.user.id, 
+            data.user.email || '', 
+            metadata.display_name || 'User'
+          );
         } else {
           // Check if subscription is expired
           const currentDate = new Date();
