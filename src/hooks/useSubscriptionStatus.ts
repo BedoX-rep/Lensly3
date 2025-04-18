@@ -1,10 +1,8 @@
-
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { supabaseAdmin } from '@/integrations/supabase/admin-client';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
-// Hook for individual user subscription status
 export function useSubscriptionStatus(userId: string | undefined) {
   const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
   const [hoursRemaining, setHoursRemaining] = useState<number | null>(null);
@@ -15,7 +13,7 @@ export function useSubscriptionStatus(userId: string | undefined) {
     if (!userId) return;
 
     const checkSubscription = async () => {
-      const { data: subscription, error } = await supabase
+      const { data: subscription, error } = await supabaseAdmin
         .from('subscriptions')
         .select('end_date, subscription_type, subscription_status')
         .eq('user_id', userId)
@@ -31,10 +29,10 @@ export function useSubscriptionStatus(userId: string | undefined) {
         const endDate = new Date(subscription.end_date);
         const now = new Date();
         const diffTime = endDate.getTime() - now.getTime();
-        
+
         if (diffTime <= 0) {
           toast.error('Your subscription has expired');
-          await supabase.auth.signOut();
+          await supabaseAdmin.auth.signOut();
           navigate('/login');
           return;
         }
@@ -52,7 +50,7 @@ export function useSubscriptionStatus(userId: string | undefined) {
     };
 
     checkSubscription();
-    const interval = setInterval(checkSubscription, 120000); // Check every 2 minutes
+    const interval = setInterval(checkSubscription, 120000);
 
     return () => clearInterval(interval);
   }, [userId, navigate]);
