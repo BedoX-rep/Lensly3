@@ -88,9 +88,6 @@ export default function Login() {
             await supabase.auth.signOut();
             toast.error("Failed to create subscription. Please try again.");
           }
-          } else {
-            toast.error("Failed to create trial subscription");
-          }
         } catch (subscriptionError) {
           console.error('Subscription creation error:', subscriptionError);
           toast.error("Failed to create trial subscription");
