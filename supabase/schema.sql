@@ -29,7 +29,9 @@ create table public.subscriptions (
   created_at timestamp with time zone default now()
 );
 
--- Enable RLS on subscriptions with no policies
+-- Remove existing policies and enable RLS without any policies
+drop policy if exists "System can create subscriptions" on public.subscriptions;
+drop policy if exists "Users can view their own subscription" on public.subscriptions;
 alter table public.subscriptions enable row level security;
 
 -- Create RLS policies
