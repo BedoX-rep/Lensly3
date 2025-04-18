@@ -1,18 +1,22 @@
-
 // Subscription queries
 import { supabaseAdmin } from './admin-client';
+import { adminCreateSubscription } from './admin-queries';
 
 export async function createTrialSubscription(userId: string, email: string, displayName: string) {
   if (!userId || !email || !displayName) {
     console.error('Missing required fields for subscription creation');
     return null;
   }
-  
+
   try {
     const endDate = new Date();
     endDate.setDate(endDate.getDate() + 7); // 7 days trial
 
-    return await adminCreateSubscription(userId, email, displayName, 'Trial', endDate);
+    const subscription = await adminCreateSubscription(userId, email, displayName, 'Trial', endDate);
+    if (!subscription) {
+      throw new Error('Failed to create subscription');
+    }
+    return subscription;
   } catch (error) {
     console.error('Error creating trial subscription:', error);
     return null;
@@ -20,7 +24,7 @@ export async function createTrialSubscription(userId: string, email: string, dis
 }
 
 export async function getActiveSubscription(userId: string) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from('subscriptions')
     .select('*')
     .eq('user_id', userId)
@@ -29,14 +33,13 @@ export async function getActiveSubscription(userId: string) {
     .limit(1)
     .single();
 
-  if (error && error.code !== 'PGRST116') { // PGRST116 means no rows returned
+  if (error && error.code !== 'PGRST116') {
     console.error('Error fetching subscription:', error);
     return null;
   }
 
   return data;
 }
-
 
 import { supabase } from "./client";
 import { toast } from "sonner";
@@ -373,9 +376,9 @@ export async function updateReceiptPaymentStatus(id: string) {
 
   const { data, error } = await supabase
     .from('receipts')
-    .update({ 
+    .update({
       advance_payment: receipt.total,
-      balance: 0 
+      balance: 0
     })
     .eq('id', id)
     .select()

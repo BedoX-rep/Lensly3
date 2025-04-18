@@ -23,11 +23,17 @@ export async function signInWithEmail(email: string, password: string) {
         if (subError?.code === 'PGRST116' || !subscription) {
           // No subscription found, create trial with user metadata
           const metadata = data.user.user_metadata || {};
-          await createTrialSubscription(
+          const trial = await createTrialSubscription(
             data.user.id, 
             data.user.email || '', 
-            metadata.display_name || 'User'
+            metadata.display_name || data.user.email?.split('@')[0] || 'User'
           );
+          
+          if (!trial) {
+            console.error('Failed to create trial subscription');
+            await supabase.auth.signOut();
+            return { data: null, error: { message: 'Failed to create trial subscription' } };
+          }
         } else {
           // Check if subscription is expired
           const currentDate = new Date();

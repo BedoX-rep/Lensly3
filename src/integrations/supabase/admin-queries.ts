@@ -28,6 +28,8 @@ export async function adminCreateSubscription(userId: string, email: string, dis
       start_date: startDate.toISOString(),
       end_date: endDate.toISOString(),
       subscription_type: subscriptionType,
+      trial_used: subscriptionType === 'Trial',
+      subscription_status: 'Active',
       created_at: startDate.toISOString()
     })
     .select()
