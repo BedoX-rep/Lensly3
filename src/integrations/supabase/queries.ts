@@ -18,6 +18,7 @@ export async function createTrialSubscription(userId: string, email: string, dis
         subscription_type: 'Trial',
         trial_used: true,
         subscription_status: 'Active',
+        is_recurring: false,
         created_at: new Date().toISOString()
       }])
       .select()
