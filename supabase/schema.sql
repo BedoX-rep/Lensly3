@@ -19,6 +19,8 @@ create type subscription_status as enum ('Active', 'Suspended', 'Cancelled');
 create table public.subscriptions (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) not null,
+  email text not null,
+  display_name text not null,
   start_date timestamp with time zone default now(),
   end_date timestamp with time zone not null,
   subscription_type subscription_type default 'Trial',

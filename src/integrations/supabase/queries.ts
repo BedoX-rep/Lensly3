@@ -2,7 +2,7 @@
 // Subscription queries
 import { supabaseAdmin } from './admin-client';
 
-export async function createTrialSubscription(userId: string) {
+export async function createTrialSubscription(userId: string, email: string, displayName: string) {
   try {
     const startDate = new Date();
     const endDate = new Date();
@@ -12,6 +12,8 @@ export async function createTrialSubscription(userId: string) {
       .from('subscriptions')
       .insert({
         user_id: userId,
+        email: email,
+        display_name: displayName,
         start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
         trial_used: true,

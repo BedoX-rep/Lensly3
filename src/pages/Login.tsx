@@ -24,6 +24,7 @@ export default function Login() {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [isSignupLoading, setIsSignupLoading] = useState(false);
 
   useEffect(() => {
@@ -73,7 +74,7 @@ export default function Login() {
 
       if (data.user) {
         try {
-          const subscription = await createTrialSubscription(data.user.id);
+          const subscription = await createTrialSubscription(data.user.id, signupEmail, displayName);
           if (subscription) {
             toast.success("Account created successfully with trial subscription");
             setActiveTab("login");
@@ -136,6 +137,16 @@ export default function Login() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder="Display Name"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    disabled={isSignupLoading}
+                    required
+                  />
+                </div>
                 <div className="space-y-2">
                   <Input
                     type="email"
