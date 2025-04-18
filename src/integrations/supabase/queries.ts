@@ -3,24 +3,34 @@ import { supabaseAdmin } from './admin-client';
 import { adminCreateSubscription } from './admin-queries';
 
 export async function createTrialSubscription(userId: string, email: string, displayName: string) {
-  if (!userId || !email || !displayName) {
-    console.error('Missing required fields for subscription creation:', { userId, email, displayName });
-    return null;
-  }
+  const endDate = new Date();
+  endDate.setDate(endDate.getDate() + 14); // 14 days trial
 
   try {
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 7); // 7 days trial
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .insert([{
+        user_id: userId,
+        email: email,
+        display_name: displayName,
+        start_date: new Date().toISOString(),
+        end_date: endDate.toISOString(),
+        subscription_type: 'Trial',
+        trial_used: true,
+        subscription_status: 'Active',
+        created_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
 
-    const subscription = await adminCreateSubscription(userId, email, displayName, 'Trial', endDate);
-    if (!subscription) {
-      console.error('Admin subscription creation failed');
+    if (error) {
+      console.error('Error creating trial subscription:', error);
       return null;
     }
-    console.log('Trial subscription created successfully:', subscription);
-    return subscription;
+
+    return data;
   } catch (error) {
-    console.error('Error creating trial subscription:', error);
+    console.error('Error in createTrialSubscription:', error);
     return null;
   }
 }
