@@ -14,7 +14,7 @@ export async function signInWithEmail(email: string, password: string) {
     
     if (data.user) {
       try {
-        // Check if user has any subscription
+        // Check if user has any subscription using service role
         const { data: subscription, error: subError } = await supabaseAdmin
           .from('subscriptions')
           .select('*')
