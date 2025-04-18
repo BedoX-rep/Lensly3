@@ -22,7 +22,7 @@ export async function signInWithEmail(email: string, password: string) {
 
         if (subError?.code === 'PGRST116' || !subscription) {
           // No subscription found, create trial
-          await createTrialSubscription(data.user.id);
+          await createTrialSubscription(data.user.id, data.user.email || '', '');
         } else {
           // Check if subscription is expired
           const currentDate = new Date();
