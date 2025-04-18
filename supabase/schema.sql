@@ -14,6 +14,7 @@ alter table public.receipt_items add column user_id uuid references auth.users(i
 -- Create subscriptions table
 -- Create subscription type enum
 create type subscription_type as enum ('Trial', 'Monthly', 'Quarterly', 'Lifetime');
+create type subscription_status as enum ('Active', 'Suspended', 'Cancelled');
 
 create table public.subscriptions (
   id uuid default gen_random_uuid() primary key,
@@ -22,6 +23,7 @@ create table public.subscriptions (
   end_date timestamp with time zone not null,
   subscription_type subscription_type default 'Trial',
   trial_used boolean default true,
+  subscription_status subscription_status default 'Active',
   created_at timestamp with time zone default now()
 );
 

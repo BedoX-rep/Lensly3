@@ -31,6 +31,16 @@ export default function Profile() {
                 </p>
               </div>
               <div>
+                <label className="font-medium">Status</label>
+                <p className={`text-muted-foreground capitalize ${
+                  subscription?.subscription_status === 'Active' ? 'text-green-500' :
+                  subscription?.subscription_status === 'Suspended' ? 'text-orange-500' :
+                  subscription?.subscription_status === 'Cancelled' ? 'text-red-500' : ''
+                }`}>
+                  {subscription?.subscription_status || 'Loading...'}
+                </p>
+              </div>
+              <div>
                 <label className="font-medium">Subscription Status</label>
                 <p className={`text-muted-foreground ${daysRemaining && daysRemaining <= 2 ? 'text-orange-500' : ''}`}>
                   {daysRemaining !== null && hoursRemaining !== null
