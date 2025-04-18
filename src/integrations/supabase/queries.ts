@@ -2,6 +2,8 @@
 import { supabaseAdmin } from './admin-client';
 import { adminCreateSubscription } from './admin-queries';
 
+import { supabaseAdmin } from './admin-client';
+
 export async function createTrialSubscription(userId: string, email: string, displayName: string) {
   const endDate = new Date();
   endDate.setDate(endDate.getDate() + 14); // 14 days trial
