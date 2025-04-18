@@ -26,13 +26,23 @@ export async function createTrialSubscription(userId: string, email: string, dis
       .single();
 
     if (error) {
-      console.error('Error creating trial subscription:', error);
+      console.error('Error creating trial subscription:', {
+        error,
+        details: error.details,
+        message: error.message,
+        hint: error.hint
+      });
       return null;
     }
 
     return data;
-  } catch (error) {
-    console.error('Error in createTrialSubscription:', error);
+  } catch (error: any) {
+    console.error('Error in createTrialSubscription:', {
+      error,
+      message: error.message,
+      details: error?.details,
+      stack: error?.stack
+    });
     return null;
   }
 }
