@@ -4,7 +4,7 @@ import { adminCreateSubscription } from './admin-queries';
 
 export async function createTrialSubscription(userId: string, email: string, displayName: string) {
   if (!userId || !email || !displayName) {
-    console.error('Missing required fields for subscription creation');
+    console.error('Missing required fields for subscription creation:', { userId, email, displayName });
     return null;
   }
 
@@ -14,8 +14,10 @@ export async function createTrialSubscription(userId: string, email: string, dis
 
     const subscription = await adminCreateSubscription(userId, email, displayName, 'Trial', endDate);
     if (!subscription) {
-      throw new Error('Failed to create subscription');
+      console.error('Admin subscription creation failed');
+      return null;
     }
+    console.log('Trial subscription created successfully:', subscription);
     return subscription;
   } catch (error) {
     console.error('Error creating trial subscription:', error);

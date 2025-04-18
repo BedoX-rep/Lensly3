@@ -79,17 +79,24 @@ export default function Login() {
 
       if (data.user) {
         try {
-          const subscription = await createTrialSubscription(data.user.id, signupEmail, displayName);
-          if (subscription) {
-            toast.success("Account created successfully with trial subscription");
-            setActiveTab("login");
-          } else {
-            // If subscription creation fails, sign out the user
+          const subscription = await createTrialSubscription(
+            data.user.id,
+            data.user.email || signupEmail,
+            displayName || data.user.email?.split('@')[0] || 'User'
+          );
+          
+          if (!subscription) {
+            console.error('Failed to create subscription');
             await supabase.auth.signOut();
             toast.error("Failed to create subscription. Please try again.");
+            return;
           }
+          
+          toast.success("Account created successfully with trial subscription");
+          setActiveTab("login");
         } catch (subscriptionError) {
           console.error('Subscription creation error:', subscriptionError);
+          await supabase.auth.signOut();
           toast.error("Failed to create trial subscription");
         }
       }
