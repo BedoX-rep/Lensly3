@@ -91,11 +91,21 @@ export default function Login() {
           );
           
           if (!subscription) {
-            console.error('Failed to create subscription:', {
+            const errorDetails = {
               userId: data.user.id,
               email: userEmail,
-              displayName: userDisplayName
-            });
+              displayName: userDisplayName,
+              timestamp: new Date().toISOString()
+            };
+            console.error('Failed to create subscription. Details:', errorDetails);
+            // Log the actual error from the subscription creation
+            console.error('Last subscription error:', await supabaseAdmin
+              .from('subscriptions')
+              .select()
+              .limit(1)
+              .single()
+              .then(res => res.error)
+            );
             await supabase.auth.signOut();
             toast.error("Failed to create subscription. Please try again.");
             return;
