@@ -21,19 +21,13 @@ export async function signInWithEmail(email: string, password: string) {
           .single();
 
         if (subError?.code === 'PGRST116' || !subscription) {
-          // No subscription found, create trial
+          // No subscription found, create trial with user metadata
           const metadata = data.user.user_metadata || {};
-          const trial = await createTrialSubscription(
+          await createTrialSubscription(
             data.user.id, 
             data.user.email || '', 
-            metadata.display_name || data.user.email?.split('@')[0] || 'User'
+            metadata.display_name || 'User'
           );
-          
-          if (!trial) {
-            const subscriptionError = { message: 'Failed to create trial subscription' };
-            await supabase.auth.signOut();
-            return { data: null, error: subscriptionError };
-          }
         } else {
           // Check if subscription is expired
           const currentDate = new Date();
@@ -48,9 +42,6 @@ export async function signInWithEmail(email: string, password: string) {
         }
       } catch (error) {
         console.error('Subscription check error:', error);
-        const subscriptionError = { message: 'Error checking subscription status' };
-        await supabase.auth.signOut();
-        return { data: null, error: subscriptionError };
       }
     }
     
