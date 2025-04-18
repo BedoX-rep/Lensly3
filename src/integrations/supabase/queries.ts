@@ -24,21 +24,26 @@ export async function createTrialSubscription(userId: string, email: string, dis
 }
 
 export async function getActiveSubscription(userId: string) {
-  const { data, error } = await supabaseAdmin
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .gte('end_date', new Date().toISOString())
-    .order('end_date', { ascending: false })
-    .limit(1)
-    .single();
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('end_date', new Date().toISOString())
+      .order('end_date', { ascending: false })
+      .limit(1)
+      .single();
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching subscription:', error);
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching subscription:', error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error in getActiveSubscription:', error);
     return null;
   }
-
-  return data;
 }
 
 import { supabase } from "./client";

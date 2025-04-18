@@ -1,4 +1,3 @@
-
 -- Enable RLS
 alter table public.products enable row level security;
 alter table public.clients enable row level security;
@@ -29,10 +28,8 @@ create table public.subscriptions (
   created_at timestamp with time zone default now()
 );
 
--- Remove existing policies and enable RLS without any policies
-drop policy if exists "System can create subscriptions" on public.subscriptions;
-drop policy if exists "Users can view their own subscription" on public.subscriptions;
-alter table public.subscriptions enable row level security;
+-- Remove RLS from subscriptions table since we're using service role
+alter table public.subscriptions disable row level security;
 
 -- Create RLS policies
 create policy "Users can create their own products"
