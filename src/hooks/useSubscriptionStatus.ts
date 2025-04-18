@@ -15,7 +15,7 @@ export function useSubscriptionStatus(userId: string | undefined) {
     const checkSubscription = async () => {
       const { data: subscription, error } = await supabaseAdmin
         .from('subscriptions')
-        .select('end_date, subscription_type, subscription_status')
+        .select('end_date, subscription_type, subscription_status, is_recurring')
         .eq('user_id', userId)
         .single();
 
