@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { supabaseAdmin } from '@/integrations/supabase/admin-client';
 import { createTrialSubscription } from '@/integrations/supabase/queries';
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
