@@ -1,74 +1,55 @@
+
 // Subscription queries
 import { supabaseAdmin } from './admin-client';
-import { adminCreateSubscription } from './admin-queries';
 
-export async function createTrialSubscription(userId: string, email: string, displayName: string) {
-  const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 14); // 14 days trial
-
+export async function createTrialSubscription(userId: string) {
   try {
-    // Use the admin client directly from import
+    const startDate = new Date();
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + 7); // 7 days trial
+
     const { data, error } = await supabaseAdmin
       .from('subscriptions')
-      .insert([{
+      .insert({
         user_id: userId,
-        email: email,
-        display_name: displayName,
-        start_date: new Date().toISOString(),
+        start_date: startDate.toISOString(),
         end_date: endDate.toISOString(),
-        subscription_type: 'Trial',
         trial_used: true,
-        subscription_status: 'Active',
-        is_recurring: false,
-        created_at: new Date().toISOString()
-      }])
+        created_at: startDate.toISOString()
+      })
       .select()
       .single();
 
     if (error) {
-      console.error('Error creating trial subscription:', {
-        error,
-        details: error.details,
-        message: error.message,
-        hint: error.hint
-      });
+      console.error('Database error creating subscription:', error);
       return null;
     }
-
+    
     return data;
-  } catch (error: any) {
-    console.error('Error in createTrialSubscription:', {
-      error,
-      message: error.message,
-      details: error?.details,
-      stack: error?.stack
-    });
+  } catch (error) {
+    console.error('Error creating trial subscription:', error);
     return null;
   }
 }
 
 export async function getActiveSubscription(userId: string) {
-  try {
-    const { data, error } = await supabaseAdmin
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .gte('end_date', new Date().toISOString())
-      .order('end_date', { ascending: false })
-      .limit(1)
-      .single();
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('end_date', new Date().toISOString())
+    .order('end_date', { ascending: false })
+    .limit(1)
+    .single();
 
-    if (error && error.code !== 'PGRST116') {
-      console.error('Error fetching subscription:', error);
-      return null;
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Error in getActiveSubscription:', error);
+  if (error && error.code !== 'PGRST116') { // PGRST116 means no rows returned
+    console.error('Error fetching subscription:', error);
     return null;
   }
+
+  return data;
 }
+
 
 import { supabase } from "./client";
 import { toast } from "sonner";
@@ -405,9 +386,9 @@ export async function updateReceiptPaymentStatus(id: string) {
 
   const { data, error } = await supabase
     .from('receipts')
-    .update({
+    .update({ 
       advance_payment: receipt.total,
-      balance: 0
+      balance: 0 
     })
     .eq('id', id)
     .select()

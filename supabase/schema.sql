@@ -1,3 +1,4 @@
+
 -- Enable RLS
 alter table public.products enable row level security;
 alter table public.clients enable row level security;
@@ -18,8 +19,6 @@ create type subscription_status as enum ('Active', 'Suspended', 'Cancelled');
 create table public.subscriptions (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users(id) not null,
-  email text not null,
-  display_name text not null,
   start_date timestamp with time zone default now(),
   end_date timestamp with time zone not null,
   subscription_type subscription_type default 'Trial',
@@ -28,8 +27,19 @@ create table public.subscriptions (
   created_at timestamp with time zone default now()
 );
 
--- Remove RLS from subscriptions table since we're using service role
-alter table public.subscriptions disable row level security;
+-- Enable RLS on subscriptions
+alter table public.subscriptions enable row level security;
+
+-- Add RLS policies for subscriptions
+create policy "Users can view their own subscription"
+on public.subscriptions for select
+to authenticated
+using (auth.uid() = user_id);
+
+create policy "System can create subscriptions"
+on public.subscriptions for insert
+to authenticated
+with check (auth.uid() = user_id);
 
 -- Create RLS policies
 create policy "Users can create their own products"

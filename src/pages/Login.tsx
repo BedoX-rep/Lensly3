@@ -24,7 +24,6 @@ export default function Login() {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
   const [isSignupLoading, setIsSignupLoading] = useState(false);
 
   useEffect(() => {
@@ -65,11 +64,6 @@ export default function Login() {
       const { data, error } = await supabase.auth.signUp({
         email: signupEmail,
         password: signupPassword,
-        options: {
-          data: {
-            display_name: displayName
-          }
-        }
       });
 
       if (error) {
@@ -79,45 +73,16 @@ export default function Login() {
 
       if (data.user) {
         try {
-          console.log('Creating trial subscription for user:', data.user.id);
-          
-          const userDisplayName = displayName || data.user.email?.split('@')[0] || 'User';
-          const userEmail = data.user.email || signupEmail;
-          
-          const subscription = await createTrialSubscription(
-            data.user.id,
-            userEmail,
-            userDisplayName
-          );
-          
-          if (!subscription) {
-            const errorDetails = {
-              userId: data.user.id,
-              email: userEmail,
-              displayName: userDisplayName,
-              timestamp: new Date().toISOString()
-            };
-            console.error('Failed to create subscription. Details:', errorDetails);
-            // Log the actual error from the subscription creation
-            console.error('Last subscription error:', await supabaseAdmin
-              .from('subscriptions')
-              .select()
-              .limit(1)
-              .single()
-              .then(res => res.error)
-            );
-            await supabase.auth.signOut();
-            toast.error("Failed to create subscription. Please try again.");
-            return;
+          const subscription = await createTrialSubscription(data.user.id);
+          if (subscription) {
+            toast.success("Account created successfully with trial subscription");
+            setActiveTab("login");
+          } else {
+            toast.error("Failed to create trial subscription");
           }
-          
-          console.log('Trial subscription created successfully:', subscription);
-          toast.success("Account created successfully with trial subscription");
-          setActiveTab("login");
         } catch (subscriptionError) {
           console.error('Subscription creation error:', subscriptionError);
-          await supabase.auth.signOut();
-          toast.error("Failed to create trial subscription. Please try again.");
+          toast.error("Failed to create trial subscription");
         }
       }
     } catch (err) {
@@ -171,16 +136,6 @@ export default function Login() {
 
             <TabsContent value="signup">
               <form onSubmit={handleSignup} className="space-y-4">
-                <div className="space-y-2">
-                  <Input
-                    type="text"
-                    placeholder="Display Name"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    disabled={isSignupLoading}
-                    required
-                  />
-                </div>
                 <div className="space-y-2">
                   <Input
                     type="email"

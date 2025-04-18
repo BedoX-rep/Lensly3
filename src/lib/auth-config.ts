@@ -1,6 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { supabaseAdmin } from '@/integrations/supabase/admin-client';
 import { createTrialSubscription } from '@/integrations/supabase/queries';
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
@@ -14,27 +13,16 @@ export async function signInWithEmail(email: string, password: string) {
     
     if (data.user) {
       try {
-        // Check if user has any subscription using service role
-        const { data: subscription, error: subError } = await supabaseAdmin
+        // Check if user has any subscription
+        const { data: subscription, error: subError } = await supabase
           .from('subscriptions')
           .select('*')
           .eq('user_id', data.user.id)
           .single();
 
         if (subError?.code === 'PGRST116' || !subscription) {
-          // No subscription found, create trial with user metadata
-          const metadata = data.user.user_metadata || {};
-          const trial = await createTrialSubscription(
-            data.user.id, 
-            data.user.email || '', 
-            metadata.display_name || data.user.email?.split('@')[0] || 'User'
-          );
-          
-          if (!trial) {
-            console.error('Failed to create trial subscription');
-            await supabase.auth.signOut();
-            return { data: null, error: { message: 'Failed to create trial subscription' } };
-          }
+          // No subscription found, create trial
+          await createTrialSubscription(data.user.id);
         } else {
           // Check if subscription is expired
           const currentDate = new Date();
