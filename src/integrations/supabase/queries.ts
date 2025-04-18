@@ -7,6 +7,7 @@ export async function createTrialSubscription(userId: string, email: string, dis
   endDate.setDate(endDate.getDate() + 14); // 14 days trial
 
   try {
+    // Use the admin client directly from import
     const { data, error } = await supabaseAdmin
       .from('subscriptions')
       .insert([{
